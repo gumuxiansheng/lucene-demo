@@ -18,6 +18,7 @@ package org.uic.demo;
 
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -58,27 +59,35 @@ public class SearchFiles {
     boolean raw = false;
     String queryString = null;
     int hitsPerPage = 10;
+
+    String[] argsN = args;
+
+    if (args.length == 0) {
+      String indexDir = "/Users/mikezhu/Dev/Python/UIC/crawl_people/people/website/index";
+      String queryStr = "清华大学";
+      argsN = ("-index " + indexDir + " -query " + queryStr).split(" ");
+    }
     
-    for(int i = 0;i < args.length;i++) {
-      if ("-index".equals(args[i])) {
-        index = args[i+1];
+    for(int i = 0;i < argsN.length;i++) {
+      if ("-index".equals(argsN[i])) {
+        index = argsN[i+1];
         i++;
-      } else if ("-field".equals(args[i])) {
-        field = args[i+1];
+      } else if ("-field".equals(argsN[i])) {
+        field = argsN[i+1];
         i++;
-      } else if ("-queries".equals(args[i])) {
-        queries = args[i+1];
+      } else if ("-queries".equals(argsN[i])) {
+        queries = argsN[i+1];
         i++;
-      } else if ("-query".equals(args[i])) {
-        queryString = args[i+1];
+      } else if ("-query".equals(argsN[i])) {
+        queryString = argsN[i+1];
         i++;
-      } else if ("-repeat".equals(args[i])) {
-        repeat = Integer.parseInt(args[i+1]);
+      } else if ("-repeat".equals(argsN[i])) {
+        repeat = Integer.parseInt(argsN[i+1]);
         i++;
-      } else if ("-raw".equals(args[i])) {
+      } else if ("-raw".equals(argsN[i])) {
         raw = true;
-      } else if ("-paging".equals(args[i])) {
-        hitsPerPage = Integer.parseInt(args[i+1]);
+      } else if ("-paging".equals(argsN[i])) {
+        hitsPerPage = Integer.parseInt(argsN[i+1]);
         if (hitsPerPage <= 0) {
           System.err.println("There must be at least 1 hit per page.");
           System.exit(1);
@@ -89,7 +98,7 @@ public class SearchFiles {
     
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
+    Analyzer analyzer = new SmartChineseAnalyzer();
 
     BufferedReader in = null;
     if (queries != null) {
